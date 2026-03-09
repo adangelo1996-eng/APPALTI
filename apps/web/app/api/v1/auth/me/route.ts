@@ -9,15 +9,11 @@ export async function GET(request: NextRequest) {
   try {
     const tokenUser = getTokenUser(request);
 
-    let user = await prisma.user.findUnique({
+    const user = await prisma.user.upsert({
       where: { id: tokenUser.id },
+      update: { email: tokenUser.email },
+      create: { id: tokenUser.id, email: tokenUser.email },
     });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: { id: tokenUser.id, email: tokenUser.email },
-      });
-    }
 
     const memberships = await prisma.membership.findMany({
       where: { userId: tokenUser.id },
