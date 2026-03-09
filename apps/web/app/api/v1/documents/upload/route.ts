@@ -3,6 +3,8 @@ import { prisma } from "@lib/prisma";
 import { getTokenUser, getOrganizationId } from "@lib/auth/verify-token";
 import { handleApiError, jsonError } from "@lib/api-helpers";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   try {
     const tokenUser = getTokenUser(request);

@@ -4,6 +4,8 @@ import { getTokenUser, getOrganizationId } from "@lib/auth/verify-token";
 import { handleApiError, jsonError } from "@lib/api-helpers";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const updateSchema = z.object({
   text: z.string().min(1),
   status: z.string().optional(),
