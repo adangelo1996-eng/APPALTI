@@ -1,0 +1,221 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [uuidOssp(map: "uuid-ossp")]
+}
+
+model Organization {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String
+  slug      String?   @unique
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  memberships       Membership[]
+  activityLogs      ActivityLog[]
+  documents         Document[]
+  documentChunks    DocumentChunk[]
+  tenders           Tender[]
+  tenderCriteria    TenderCriterion[]
+  generatedSections GeneratedSection[]
+  sourceReferences  SourceReference[]
+
+  @@map("organizations")
+}
+
+model User {
+  id        String    @id @db.Uuid
+  email     String    @unique
+  fullName  String?   @map("full_name")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  memberships       Membership[]
+  activityLogs      ActivityLog[]
+  documents         Document[]
+  tenders           Tender[]
+  generatedSections GeneratedSection[]
+
+  @@map("users")
+}
+
+model Membership {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  role           String
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@map("memberships")
+}
+
+model ActivityLog {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  userId         String?  @map("user_id") @db.Uuid
+  action         String
+  targetType     String?  @map("target_type")
+  targetId       String?  @map("target_id") @db.Uuid
+  metadata       Json?
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("activity_logs")
+}
+
+model Document {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  uploaderId     String    @map("uploader_id") @db.Uuid
+  title          String?
+  filePath       String    @map("file_path")
+  documentType   String    @map("document_type")
+  status         String
+  language       String?
+  pagesCount     Int?      @map("pages_count")
+  rawText        String?   @map("raw_text")
+  metadata       Json?
+  errorMessage   String?   @map("error_message")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploader     User            @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  chunks       DocumentChunk[]
+  tenders      Tender[]
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("documents")
+}
+
+model DocumentChunk {
+  id             String                     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  documentId     String                     @map("document_id") @db.Uuid
+  organizationId String                     @map("organization_id") @db.Uuid
+  chunkIndex     Int                        @map("chunk_index")
+  content        String
+  embedding      Unsupported("vector(768)")?
+  sectionTitle   String?                    @map("section_title")
+  pageStart      Int?                       @map("page_start")
+  pageEnd        Int?                       @map("page_end")
+  metadata       Json?
+  createdAt      DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  document         Document          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sourceReferences SourceReference[]
+
+  @@index([documentId, chunkIndex])
+  @@index([organizationId])
+  @@map("document_chunks")
+}
+
+model Tender {
+  id                 String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId     String    @map("organization_id") @db.Uuid
+  creatorId          String    @map("creator_id") @db.Uuid
+  title              String
+  tenderCode         String?   @map("tender_code")
+  status             String
+  tenderDocumentId   String?   @map("tender_document_id") @db.Uuid
+  submissionDeadline DateTime? @map("submission_deadline") @db.Timestamptz(6)
+  metadata           Json?
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator           User               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  tenderDocument    Document?          @relation(fields: [tenderDocumentId], references: [id], onDelete: SetNull)
+  criteria          TenderCriterion[]
+  generatedSections GeneratedSection[]
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@map("tenders")
+}
+
+model TenderCriterion {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tenderId          String    @map("tender_id") @db.Uuid
+  organizationId    String    @map("organization_id") @db.Uuid
+  parentId          String?   @map("parent_id") @db.Uuid
+  code              String?
+  title             String
+  description       String?
+  maxScore          Decimal?  @map("max_score")
+  weight            Decimal?
+  constraints       Json?
+  requiredDocuments Json?     @map("required_documents")
+  keywords          String[]
+  analysisNotes     String?   @map("analysis_notes")
+  needsReview       Boolean?  @default(true) @map("needs_review")
+  orderIndex        Int?      @map("order_index")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  tender            Tender             @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent            TenderCriterion?   @relation("CriterionHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children          TenderCriterion[]  @relation("CriterionHierarchy")
+  generatedSections GeneratedSection[]
+
+  @@index([tenderId, orderIndex])
+  @@index([organizationId])
+  @@map("tender_criteria")
+}
+
+model GeneratedSection {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tenderId          String    @map("tender_id") @db.Uuid
+  tenderCriterionId String    @map("tender_criterion_id") @db.Uuid
+  organizationId    String    @map("organization_id") @db.Uuid
+  authorId          String    @map("author_id") @db.Uuid
+  version           Int
+  status            String
+  generatedText     String    @map("generated_text")
+  notes             String?
+  qualityScore      Decimal?  @map("quality_score")
+  weaknessFlags     Json?     @map("weakness_flags")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime? @map("updated_at") @db.Timestamptz(6)
+
+  tender          Tender            @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  tenderCriterion TenderCriterion   @relation(fields: [tenderCriterionId], references: [id], onDelete: Cascade)
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author          User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  sources         SourceReference[]
+
+  @@index([tenderCriterionId, version(sort: Desc)])
+  @@index([organizationId])
+  @@map("generated_sections")
+}
+
+model SourceReference {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  generatedSectionId String   @map("generated_section_id") @db.Uuid
+  documentChunkId    String   @map("document_chunk_id") @db.Uuid
+  organizationId     String   @map("organization_id") @db.Uuid
+  relevanceScore     Decimal? @map("relevance_score")
+  usageType          String?  @map("usage_type")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  generatedSection GeneratedSection @relation(fields: [generatedSectionId], references: [id], onDelete: Cascade)
+  documentChunk    DocumentChunk    @relation(fields: [documentChunkId], references: [id], onDelete: Cascade)
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([generatedSectionId])
+  @@index([organizationId])
+  @@map("source_references")
+}

@@ -14,7 +14,7 @@ export default function LoginPage() {
   useEffect(() => {
     supabaseClient.auth.getSession().then(({ data }) => {
       if (data.session) {
-        router.push("/");
+        router.push("/tenders");
       }
     });
   }, [router]);
@@ -26,7 +26,7 @@ export default function LoginPage() {
     const { error } = await supabaseClient.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${window.location.origin}/tenders`,
       },
     });
     setLoading(false);

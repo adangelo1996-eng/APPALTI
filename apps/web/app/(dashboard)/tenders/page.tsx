@@ -78,13 +78,10 @@ export default function TendersPage() {
     try {
       const { accessToken, organizationId, organizationRole } = await getSessionAndOrganization();
       setIsAdmin(organizationRole === "admin");
-      const data = await apiRequest<CriterionRow[]>(
-        `/api/v1/tenders/${tenderId}/criteria`,
-        {
-          accessToken,
-          organizationId,
-        },
-      );
+      const data = await apiRequest<CriterionRow[]>(`/api/v1/tenders/${tenderId}/criteria`, {
+        accessToken,
+        organizationId,
+      });
       setCriteria(data);
     } catch (e: any) {
       const message = e?.message ?? "Errore inatteso nel caricamento dei criteri.";
@@ -110,9 +107,7 @@ export default function TendersPage() {
   }, [selectedTenderId]);
 
   const filteredTenders = tenders.filter((t) =>
-    !tenderSearch
-      ? true
-      : t.title.toLowerCase().includes(tenderSearch.toLowerCase()),
+    !tenderSearch ? true : t.title.toLowerCase().includes(tenderSearch.toLowerCase()),
   );
 
   const filteredCriteria = criteria.filter((c) => {
@@ -135,7 +130,7 @@ export default function TendersPage() {
       formData.append("file", file);
       formData.append("title", title);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/tenders/upload`, {
+      const res = await fetch("/api/v1/tenders/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -169,7 +164,8 @@ export default function TendersPage() {
       <section>
         <h1 className="text-lg font-semibold text-slate-50">Bandi e criteri di valutazione</h1>
         <p className="mt-1 text-sm text-slate-400">
-          Carica disciplinari e capitolati, estrai automaticamente criteri, sub-criteri, punteggi e requisiti documentali.
+          Carica disciplinari e capitolati, estrai automaticamente criteri, sub-criteri, punteggi e
+          requisiti documentali.
         </p>
       </section>
 
@@ -239,43 +235,43 @@ export default function TendersPage() {
             </div>
 
             <div className="overflow-hidden rounded-md border border-borderSubtle">
-            <table className="min-w-full border-collapse text-xs">
-              <thead className="bg-slate-900/70 text-slate-300">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium">Titolo</th>
-                  <th className="px-3 py-2 text-left font-medium">Stato</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && (
+              <table className="min-w-full border-collapse text-xs">
+                <thead className="bg-slate-900/70 text-slate-300">
                   <tr>
-                    <td colSpan={2} className="px-3 py-3 text-center text-slate-400">
-                      Caricamento bandi in corso...
-                    </td>
+                    <th className="px-3 py-2 text-left font-medium">Titolo</th>
+                    <th className="px-3 py-2 text-left font-medium">Stato</th>
                   </tr>
-                )}
-                {!loading && filteredTenders.length === 0 && (
-                  <tr>
-                    <td colSpan={2} className="px-3 py-3 text-center text-slate-500">
-                      Nessun bando corrisponde ai filtri correnti.
-                    </td>
-                  </tr>
-                )}
-                {!loading &&
-                  filteredTenders.map((t) => (
-                    <tr
-                      key={t.id}
-                      className={`cursor-pointer border-t border-slate-800/80 ${
-                        selectedTenderId === t.id ? "bg-slate-900/60" : "hover:bg-slate-900/40"
-                      }`}
-                      onClick={() => setSelectedTenderId(t.id)}
-                    >
-                      <td className="px-3 py-2 text-slate-100">{t.title}</td>
-                      <td className="px-3 py-2 text-slate-300">{t.status}</td>
+                </thead>
+                <tbody>
+                  {loading && (
+                    <tr>
+                      <td colSpan={2} className="px-3 py-3 text-center text-slate-400">
+                        Caricamento bandi in corso...
+                      </td>
                     </tr>
-                  ))}
-              </tbody>
-            </table>
+                  )}
+                  {!loading && filteredTenders.length === 0 && (
+                    <tr>
+                      <td colSpan={2} className="px-3 py-3 text-center text-slate-500">
+                        Nessun bando corrisponde ai filtri correnti.
+                      </td>
+                    </tr>
+                  )}
+                  {!loading &&
+                    filteredTenders.map((t) => (
+                      <tr
+                        key={t.id}
+                        className={`cursor-pointer border-t border-slate-800/80 ${
+                          selectedTenderId === t.id ? "bg-slate-900/60" : "hover:bg-slate-900/40"
+                        }`}
+                        onClick={() => setSelectedTenderId(t.id)}
+                      >
+                        <td className="px-3 py-2 text-slate-100">{t.title}</td>
+                        <td className="px-3 py-2 text-slate-300">{t.status}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </Card>
@@ -299,81 +295,81 @@ export default function TendersPage() {
             </div>
 
             <div className="max-h-[380px] overflow-y-auto rounded-md border border-borderSubtle">
-            <table className="min-w-full border-collapse text-xs">
-              <thead className="bg-slate-900/70 text-slate-300">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium">Criterio / sub-criterio</th>
-                  <th className="px-3 py-2 text-left font-medium">Punteggio max</th>
-                  <th className="px-3 py-2 text-left font-medium">Vincoli</th>
-                  <th className="px-3 py-2 text-left font-medium">Evidenze richieste</th>
-                  <th className="px-3 py-2 text-left font-medium">Keyword</th>
-                  <th className="px-3 py-2 text-left font-medium">Note / review</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCriteria.length === 0 && (
+              <table className="min-w-full border-collapse text-xs">
+                <thead className="bg-slate-900/70 text-slate-300">
                   <tr>
-                    <td colSpan={6} className="px-3 py-3 text-center text-slate-500">
-                      {criteria.length === 0
-                        ? "Seleziona un bando per visualizzare i criteri estratti."
-                        : "Nessun criterio corrisponde ai filtri correnti."}
-                    </td>
+                    <th className="px-3 py-2 text-left font-medium">Criterio / sub-criterio</th>
+                    <th className="px-3 py-2 text-left font-medium">Punteggio max</th>
+                    <th className="px-3 py-2 text-left font-medium">Vincoli</th>
+                    <th className="px-3 py-2 text-left font-medium">Evidenze richieste</th>
+                    <th className="px-3 py-2 text-left font-medium">Keyword</th>
+                    <th className="px-3 py-2 text-left font-medium">Note / review</th>
                   </tr>
-                )}
-                {filteredCriteria.map((c) => (
-                  <tr
-                    key={c.id}
-                    className={`border-t border-slate-800/80 align-top ${
-                      c.needs_review ? "bg-amber-950/30" : ""
-                    }`}
-                  >
-                    <td className="px-3 py-2 text-slate-100">
-                      <div className="text-[11px] text-slate-400">{c.code ?? "—"}</div>
-                      <div className="font-medium">{c.title}</div>
-                      {c.description && (
-                        <p className="mt-1 line-clamp-3 text-[11px] text-slate-500">
-                          {c.description}
-                        </p>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-slate-300">
-                      {c.max_score !== null ? c.max_score : "—"}
-                    </td>
-                    <td className="px-3 py-2 text-[11px] text-slate-400">
-                      {c.constraints?.items && c.constraints.items.length > 0
-                        ? c.constraints.items.map((ln, i) => (
-                            <div key={i} className="mb-1">
-                              • {ln}
-                            </div>
-                          ))
-                        : "—"}
-                    </td>
-                    <td className="px-3 py-2 text-[11px] text-slate-400">
-                      {c.required_documents?.items && c.required_documents.items.length > 0
-                        ? c.required_documents.items.map((ln, i) => (
-                            <div key={i} className="mb-1">
-                              • {ln}
-                            </div>
-                          ))
-                        : "—"}
-                    </td>
-                    <td className="px-3 py-2 text-[11px] text-slate-300">
-                      {c.keywords && c.keywords.length > 0 ? c.keywords.join(", ") : "—"}
-                    </td>
-                    <td className="px-3 py-2 text-[11px] text-slate-300">
-                      {c.needs_review && (
-                        <div className="mb-1 inline-flex items-center rounded-full bg-amber-900/70 px-2 py-0.5 text-[10px] text-amber-100">
-                          Da verificare
-                        </div>
-                      )}
-                      {c.analysis_notes && (
-                        <p className="mt-1 text-[11px] text-slate-400">{c.analysis_notes}</p>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredCriteria.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-3 py-3 text-center text-slate-500">
+                        {criteria.length === 0
+                          ? "Seleziona un bando per visualizzare i criteri estratti."
+                          : "Nessun criterio corrisponde ai filtri correnti."}
+                      </td>
+                    </tr>
+                  )}
+                  {filteredCriteria.map((c) => (
+                    <tr
+                      key={c.id}
+                      className={`border-t border-slate-800/80 align-top ${
+                        c.needs_review ? "bg-amber-950/30" : ""
+                      }`}
+                    >
+                      <td className="px-3 py-2 text-slate-100">
+                        <div className="text-[11px] text-slate-400">{c.code ?? "—"}</div>
+                        <div className="font-medium">{c.title}</div>
+                        {c.description && (
+                          <p className="mt-1 line-clamp-3 text-[11px] text-slate-500">
+                            {c.description}
+                          </p>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-slate-300">
+                        {c.max_score !== null ? c.max_score : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-[11px] text-slate-400">
+                        {c.constraints?.items && c.constraints.items.length > 0
+                          ? c.constraints.items.map((ln, i) => (
+                              <div key={i} className="mb-1">
+                                • {ln}
+                              </div>
+                            ))
+                          : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-[11px] text-slate-400">
+                        {c.required_documents?.items && c.required_documents.items.length > 0
+                          ? c.required_documents.items.map((ln, i) => (
+                              <div key={i} className="mb-1">
+                                • {ln}
+                              </div>
+                            ))
+                          : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-[11px] text-slate-300">
+                        {c.keywords && c.keywords.length > 0 ? c.keywords.join(", ") : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-[11px] text-slate-300">
+                        {c.needs_review && (
+                          <div className="mb-1 inline-flex items-center rounded-full bg-amber-900/70 px-2 py-0.5 text-[10px] text-amber-100">
+                            Da verificare
+                          </div>
+                        )}
+                        {c.analysis_notes && (
+                          <p className="mt-1 text-[11px] text-slate-400">{c.analysis_notes}</p>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </Card>
@@ -382,12 +378,11 @@ export default function TendersPage() {
       {criteria.length > 0 && (
         <p className="text-xs text-slate-400">
           Punteggio totale individuato (somma criteri):{" "}
-          <span className="font-semibold text-slate-100">{totalScore.toFixed(2)}</span> punti.
-          I criteri evidenziati richiedono revisione manuale.
+          <span className="font-semibold text-slate-100">{totalScore.toFixed(2)}</span> punti. I
+          criteri evidenziati richiedono revisione manuale.
         </p>
       )}
     </div>
   );
 }
-
 

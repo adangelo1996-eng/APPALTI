@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -73,10 +72,7 @@ export default function DocumentsPage() {
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesSearch =
-      !searchTerm ||
-      (doc.title ?? "")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      !searchTerm || (doc.title ?? "").toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesType = filterType === "all" || doc.document_type === filterType;
     const matchesStatus = filterStatus === "all" || doc.status === filterStatus;
@@ -98,7 +94,7 @@ export default function DocumentsPage() {
       formData.append("file", file);
       formData.append("document_type", documentType);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/documents/upload`, {
+      const res = await fetch("/api/v1/documents/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -131,7 +127,8 @@ export default function DocumentsPage() {
       <section>
         <h1 className="text-lg font-semibold text-slate-50">Knowledge base documentale</h1>
         <p className="mt-1 text-sm text-slate-400">
-          Gestisci lo storico documentale: offerte tecniche, capitolati, CV, certificazioni e asset metodologici.
+          Gestisci lo storico documentale: offerte tecniche, capitolati, CV, certificazioni e asset
+          metodologici.
         </p>
       </section>
 
@@ -235,58 +232,57 @@ export default function DocumentsPage() {
           </div>
 
           <div className="overflow-hidden rounded-md border border-borderSubtle">
-          <table className="min-w-full border-collapse text-xs">
-            <thead className="bg-slate-900/70 text-slate-300">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">Titolo</th>
-                <th className="px-3 py-2 text-left font-medium">Tipologia</th>
-                <th className="px-3 py-2 text-left font-medium">Stato</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && (
+            <table className="min-w-full border-collapse text-xs">
+              <thead className="bg-slate-900/70 text-slate-300">
                 <tr>
-                  <td colSpan={3} className="px-3 py-3 text-center text-slate-400">
-                    Caricamento documenti in corso...
-                  </td>
+                  <th className="px-3 py-2 text-left font-medium">Titolo</th>
+                  <th className="px-3 py-2 text-left font-medium">Tipologia</th>
+                  <th className="px-3 py-2 text-left font-medium">Stato</th>
                 </tr>
-              )}
-              {!loading && filteredDocuments.length === 0 && (
-                <tr>
-                  <td colSpan={3} className="px-3 py-3 text-center text-slate-500">
-                    Nessun documento corrisponde ai filtri correnti.
-                  </td>
-                </tr>
-              )}
-              {!loading &&
-                filteredDocuments.map((doc) => (
-                  <tr key={doc.id} className="border-t border-slate-800/80">
-                    <td className="px-3 py-2 text-slate-100">{doc.title ?? "—"}</td>
-                    <td className="px-3 py-2 text-slate-300">{doc.document_type}</td>
-                    <td className="px-3 py-2">
-                      <span
-                        className={
-                          doc.status === "ready"
-                            ? "rounded-full bg-emerald-900/60 px-2 py-0.5 text-[11px] text-emerald-200"
-                            : doc.status === "processing"
-                              ? "rounded-full bg-amber-900/60 px-2 py-0.5 text-[11px] text-amber-200"
-                              : doc.status === "failed"
-                                ? "rounded-full bg-red-900/60 px-2 py-0.5 text-[11px] text-red-200"
-                                : "rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-200"
-                        }
-                      >
-                        {doc.status}
-                      </span>
+              </thead>
+              <tbody>
+                {loading && (
+                  <tr>
+                    <td colSpan={3} className="px-3 py-3 text-center text-slate-400">
+                      Caricamento documenti in corso...
                     </td>
                   </tr>
-                ))}
-            </tbody>
-          </table>
+                )}
+                {!loading && filteredDocuments.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="px-3 py-3 text-center text-slate-500">
+                      Nessun documento corrisponde ai filtri correnti.
+                    </td>
+                  </tr>
+                )}
+                {!loading &&
+                  filteredDocuments.map((doc) => (
+                    <tr key={doc.id} className="border-t border-slate-800/80">
+                      <td className="px-3 py-2 text-slate-100">{doc.title ?? "—"}</td>
+                      <td className="px-3 py-2 text-slate-300">{doc.document_type}</td>
+                      <td className="px-3 py-2">
+                        <span
+                          className={
+                            doc.status === "ready"
+                              ? "rounded-full bg-emerald-900/60 px-2 py-0.5 text-[11px] text-emerald-200"
+                              : doc.status === "processing"
+                                ? "rounded-full bg-amber-900/60 px-2 py-0.5 text-[11px] text-amber-200"
+                                : doc.status === "failed"
+                                  ? "rounded-full bg-red-900/60 px-2 py-0.5 text-[11px] text-red-200"
+                                  : "rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-200"
+                          }
+                        >
+                          {doc.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </Card>
     </div>
   );
 }
-
 

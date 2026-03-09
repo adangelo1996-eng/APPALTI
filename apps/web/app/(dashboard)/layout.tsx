@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import "../globals.css";
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseClient } from "@lib/auth/supabaseClient";
