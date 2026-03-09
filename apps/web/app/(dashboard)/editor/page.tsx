@@ -85,7 +85,6 @@ export default function EditorPage() {
       }
     } catch (e: any) {
       const message = e?.message ?? "Errore inatteso nel caricamento dei bandi.";
-
       if (message.toLowerCase().includes("sessione non valida")) {
         setSessionError(message);
       } else {
@@ -104,10 +103,7 @@ export default function EditorPage() {
       const { accessToken, organizationId } = await getSessionAndOrganization();
       const data = await apiRequest<any[]>(
         `/api/v1/tenders/${tenderId}/criteria`,
-        {
-          accessToken,
-          organizationId,
-        },
+        { accessToken, organizationId },
       );
       const mapped: CriterionRow[] = data.map((c) => ({
         id: c.id,
@@ -120,7 +116,6 @@ export default function EditorPage() {
       }
     } catch (e: any) {
       const message = e?.message ?? "Errore inatteso nel caricamento dei criteri.";
-
       if (message.toLowerCase().includes("sessione non valida")) {
         setSessionError(message);
       } else {
@@ -157,7 +152,6 @@ export default function EditorPage() {
     } catch (e: any) {
       const message =
         e?.message ?? "Errore inatteso nel caricamento del contesto di generazione.";
-
       if (message.toLowerCase().includes("sessione non valida")) {
         setSessionError(message);
       } else {
@@ -172,6 +166,8 @@ export default function EditorPage() {
 
   useEffect(() => {
     if (selectedTenderId) {
+      setCriteria([]);
+      setSelectedCriterionId(null);
       loadCriteria(selectedTenderId);
     } else {
       setCriteria([]);
@@ -199,19 +195,13 @@ export default function EditorPage() {
       const { accessToken, organizationId } = await getSessionAndOrganization();
       const data = await apiRequest<SectionModel>(
         `/api/v1/generation/criteria/${selectedCriterionId}/draft`,
-        {
-          method: "POST",
-          accessToken,
-          organizationId,
-        },
+        { method: "POST", accessToken, organizationId },
       );
       setSection(data);
       setDraftText(data.generated_text);
-      // Ricarica contesto, fonti e storico versioni
       await loadGenerationContext(selectedCriterionId);
     } catch (e: any) {
       const message = e?.message ?? "Errore durante la generazione della sezione.";
-
       if (message.toLowerCase().includes("sessione non valida")) {
         setSessionError(message);
       } else {
@@ -242,7 +232,6 @@ export default function EditorPage() {
       setSection(data);
     } catch (e: any) {
       const message = e?.message ?? "Errore durante il salvataggio della sezione.";
-
       if (message.toLowerCase().includes("sessione non valida")) {
         setSessionError(message);
       } else {
@@ -482,4 +471,3 @@ export default function EditorPage() {
     </div>
   );
 }
-

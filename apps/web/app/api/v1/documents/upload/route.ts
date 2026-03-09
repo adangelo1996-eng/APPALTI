@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@lib/prisma";
 import { getTokenUser, getOrganizationId } from "@lib/auth/verify-token";
 import { handleApiError, jsonError } from "@lib/api-helpers";
+import { extractTextFromPdf, normalizeText } from "@lib/services/pdf-parser";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,27 @@ export async function POST(request: NextRequest) {
       return jsonError("Tipologia documento obbligatoria.", 400);
     }
 
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    let rawText = "";
+    let pagesCount = 0;
+    let status = "uploaded";
+
+    const isPdf =
+      file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+    if (isPdf) {
+      try {
+        const result = await extractTextFromPdf(buffer);
+        rawText = normalizeText(result.text);
+        pagesCount = result.pages;
+        status = "ready";
+      } catch {
+        status = "failed";
+      }
+    }
+
     const doc = await prisma.document.create({
       data: {
         organizationId,
@@ -28,7 +50,20 @@ export async function POST(request: NextRequest) {
         title: file.name,
         filePath: `uploads/${organizationId}/${file.name}`,
         documentType,
-        status: "uploaded",
+        status,
+        pagesCount: pagesCount || null,
+        rawText: rawText || null,
+      },
+    });
+
+    await prisma.activityLog.create({
+      data: {
+        organizationId,
+        userId: tokenUser.id,
+        action: "document.uploaded",
+        targetType: "document",
+        targetId: doc.id,
+        metadata: { filename: file.name, documentType },
       },
     });
 
