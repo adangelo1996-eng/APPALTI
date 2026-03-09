@@ -15,9 +15,24 @@ export async function GET(request: NextRequest) {
       create: { id: tokenUser.id, email: tokenUser.email },
     });
 
-    const memberships = await prisma.membership.findMany({
+    let memberships = await prisma.membership.findMany({
       where: { userId: tokenUser.id },
     });
+
+    if (memberships.length === 0) {
+      const emailName = tokenUser.email.split("@")[0] ?? "utente";
+      const org = await prisma.organization.create({
+        data: { name: `Org di ${emailName}` },
+      });
+      const membership = await prisma.membership.create({
+        data: {
+          userId: tokenUser.id,
+          organizationId: org.id,
+          role: "admin",
+        },
+      });
+      memberships = [membership];
+    }
 
     return NextResponse.json({
       user: {
