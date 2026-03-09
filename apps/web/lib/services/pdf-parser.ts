@@ -1,10 +1,11 @@
-import pdfParse from "pdf-parse";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse = require("pdf-parse");
 
 export async function extractTextFromPdf(
   buffer: Buffer,
 ): Promise<{ text: string; pages: number }> {
   const result = await pdfParse(buffer);
-  return { text: result.text, pages: result.numpages };
+  return { text: result.text as string, pages: result.numpages as number };
 }
 
 export function normalizeText(text: string): string {
