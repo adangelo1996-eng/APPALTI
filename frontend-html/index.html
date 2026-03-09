@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>RFP AI Co-Pilot – Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js" defer></script>
+    <script src="js/auth.js" defer></script>
+  </head>
+  <body class="bg-gradient">
+    <main class="centered-main">
+      <section class="card card-elevated card-login">
+        <div class="logo-pill">RFP</div>
+        <h1 class="card-title">Accedi a RFP AI Co-Pilot</h1>
+        <p class="card-subtitle">
+          Copilot specializzato per la redazione di offerte tecniche e gestione bandi.
+        </p>
+
+        <form id="login-form" class="form-vertical">
+          <label class="field">
+            <span class="field-label">Email di lavoro</span>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              placeholder="nome.cognome@azienda.it"
+              class="field-input"
+            />
+          </label>
+          <button type="submit" class="btn btn-primary btn-full" id="login-submit">
+            Invia link di accesso
+          </button>
+        </form>
+
+        <p class="helper-text">
+          Accesso passwordless via Supabase Auth. Dopo aver cliccato il link ricevuto via email,
+          verrai reindirizzato qui e potrai accedere alle pagine bandi e documenti.
+        </p>
+
+        <p id="login-message" class="status-text" role="status"></p>
+      </section>
+    </main>
+  </body>
+</html>
+

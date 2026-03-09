@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>RFP AI Co-Pilot – Documenti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js" defer></script>
+    <script src="js/documents.js" defer></script>
+  </head>
+  <body class="bg-surface">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="logo-pill small">RFP</span>
+        <span class="topbar-title">Workspace organizzazione</span>
+      </div>
+      <nav class="topbar-nav">
+        <a href="appalti.html" class="topbar-link">Bandi</a>
+        <a href="documents.html" class="topbar-link active">Documenti</a>
+        <a href="index.html" class="topbar-link">Logout</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="page-header">
+        <h1 class="page-title">Knowledge base documentale</h1>
+        <p class="page-subtitle">
+          Gestisci lo storico documentale: offerte tecniche, capitolati, CV, certificazioni e asset
+          metodologici.
+        </p>
+      </section>
+
+      <section class="card card-elevated">
+        <header class="card-header">
+          <h2 class="card-title">Upload documenti</h2>
+          <p class="card-subtitle">
+            Carica PDF e DOCX; il sistema estrae testo, pulisce, chunkizza e genera embedding.
+          </p>
+        </header>
+
+        <form id="doc-upload-form" class="form-vertical">
+          <label class="field">
+            <span class="field-label">File PDF o DOCX</span>
+            <input
+              id="doc-file"
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              class="field-input"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Tipologia documento</span>
+            <select id="doc-type" class="field-input">
+              <option value="past_offer">Offerta tecnica passata</option>
+              <option value="tender">Capitolato / bando</option>
+              <option value="cv">CV</option>
+              <option value="certification">Certificazione</option>
+              <option value="methodology">Metodologia</option>
+              <option value="reference">Referenza</option>
+              <option value="org_chart">Organigramma</option>
+              <option value="service_sheet">Scheda servizio</option>
+              <option value="other">Altro</option>
+            </select>
+          </label>
+
+          <div class="form-footer">
+            <p class="helper-text small">
+              In modalità mock il documento non viene realmente elaborato, ma puoi simulare lo stato
+              di processing/ready.
+            </p>
+            <button type="submit" class="btn btn-primary" id="doc-upload-submit">
+              Carica (mock)
+            </button>
+          </div>
+        </form>
+
+        <p id="doc-upload-message" class="status-text" role="status"></p>
+      </section>
+
+      <section class="card card-elevated card-fullwidth">
+        <header class="card-header">
+          <h2 class="card-title">Elenco documenti</h2>
+          <p class="card-subtitle">
+            Vista tabellare con stato di elaborazione e tipologia, pronta per ricerca e filtri.
+          </p>
+        </header>
+
+        <div class="filters-row">
+          <label class="field inline">
+            <span class="field-label small">Cerca per titolo</span>
+            <input
+              id="doc-search"
+              type="text"
+              class="field-input"
+              placeholder="Es. Offerta manutenzione, Capitolato ICT..."
+            />
+          </label>
+          <label class="field inline">
+            <span class="field-label small">Tipologia</span>
+            <select id="doc-filter-type" class="field-input">
+              <option value="all">Tutte</option>
+              <option value="past_offer">Offerta tecnica passata</option>
+              <option value="tender">Capitolato / bando</option>
+              <option value="cv">CV</option>
+              <option value="certification">Certificazione</option>
+              <option value="methodology">Metodologia</option>
+              <option value="reference">Referenza</option>
+              <option value="org_chart">Organigramma</option>
+              <option value="service_sheet">Scheda servizio</option>
+              <option value="other">Altro</option>
+            </select>
+          </label>
+          <label class="field inline">
+            <span class="field-label small">Stato</span>
+            <select id="doc-filter-status" class="field-input">
+              <option value="all">Tutti</option>
+              <option value="ready">Pronto</option>
+              <option value="processing">In elaborazione</option>
+              <option value="failed">Fallito</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Titolo</th>
+                <th>Tipologia</th>
+                <th>Stato</th>
+              </tr>
+            </thead>
+            <tbody id="doc-table-body">
+              <tr>
+                <td colspan="3" class="table-empty">
+                  Caricamento documenti in corso...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p id="doc-list-message" class="status-text" role="status"></p>
+      </section>
+    </main>
+  </body>
+</html>
+

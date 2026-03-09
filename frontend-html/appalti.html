@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>RFP AI Co-Pilot – Bandi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/appalti.js" defer></script>
+  </head>
+  <body class="bg-surface">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="logo-pill small">RFP</span>
+        <span class="topbar-title">Workspace organizzazione</span>
+      </div>
+      <nav class="topbar-nav">
+        <a href="appalti.html" class="topbar-link active">Bandi</a>
+        <a href="documents.html" class="topbar-link">Documenti</a>
+        <a href="index.html" class="topbar-link">Logout</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="page-header">
+        <h1 class="page-title">Bandi e criteri di valutazione</h1>
+        <p class="page-subtitle">
+          Carica disciplinari e capitolati, estrai automaticamente criteri, sub-criteri, punteggi e
+          requisiti documentali.
+        </p>
+      </section>
+
+      <section class="grid grid-2">
+        <article class="card card-elevated">
+          <header class="card-header">
+            <h2 class="card-title">Parsing bando</h2>
+            <p class="card-subtitle">
+              Upload disciplinare e generazione struttura criteri.
+            </p>
+          </header>
+
+          <form id="tender-upload-form" class="form-vertical">
+            <label class="field">
+              <span class="field-label">Titolo interno bando</span>
+              <input
+                id="tender-title"
+                name="title"
+                type="text"
+                class="field-input"
+                placeholder="Gara servizi manutenzione 2025"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field-label">File disciplinare (PDF o DOCX)</span>
+              <input
+                id="tender-file"
+                name="file"
+                type="file"
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                class="field-input"
+              />
+            </label>
+
+            <div class="form-footer">
+              <p class="helper-text small">
+                L’AI analizza il disciplinare e costruisce una tabella criteri navigabile.
+              </p>
+              <button type="submit" class="btn btn-primary" id="tender-upload-submit">
+                Crea bando da disciplinare
+              </button>
+            </div>
+          </form>
+
+          <p id="tender-upload-message" class="status-text" role="status"></p>
+        </article>
+
+        <article class="card card-elevated">
+          <header class="card-header">
+            <h2 class="card-title">Criteri di valutazione</h2>
+            <p class="card-subtitle">
+              Struttura criteri e sub-criteri estratta dal disciplinare, con punteggi, vincoli ed
+              evidenze richieste.
+            </p>
+          </header>
+
+          <div class="filters-row">
+            <label class="field inline">
+              <span class="field-label small">Filtra criteri</span>
+              <input
+                id="criteria-search"
+                type="text"
+                class="field-input"
+                placeholder="Codice o titolo criterio..."
+              />
+            </label>
+          </div>
+
+          <div class="table-wrapper tall">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Criterio / sub-criterio</th>
+                  <th>Punteggio max</th>
+                  <th>Vincoli</th>
+                  <th>Evidenze richieste</th>
+                  <th>Keyword</th>
+                  <th>Note / review</th>
+                </tr>
+              </thead>
+              <tbody id="criteria-table-body">
+                <tr>
+                  <td colspan="6" class="table-empty">
+                    Seleziona un bando sulla sinistra per visualizzare i criteri estratti.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p id="criteria-summary" class="helper-text small"></p>
+        </article>
+      </section>
+
+      <section class="card card-elevated card-fullwidth">
+        <header class="card-header">
+          <h2 class="card-title">Elenco bandi</h2>
+          <p class="card-subtitle">
+            Lista bandi attivi, con stato di avanzamento dell’offerta tecnica.
+          </p>
+        </header>
+
+        <div class="filters-row">
+          <label class="field inline">
+            <span class="field-label small">Cerca bando</span>
+            <input
+              id="tender-search"
+              type="text"
+              class="field-input"
+              placeholder="Es. Gara manutenzione, Fornitura servizi..."
+            />
+          </label>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Titolo</th>
+                <th>Stato</th>
+              </tr>
+            </thead>
+            <tbody id="tenders-table-body">
+              <tr>
+                <td colspan="2" class="table-empty">
+                  Caricamento bandi in corso...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p id="tenders-message" class="status-text" role="status"></p>
+      </section>
+    </main>
+  </body>
+</html>
+

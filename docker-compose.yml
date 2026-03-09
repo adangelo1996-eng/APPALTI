@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: appalti-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: appalti
+      POSTGRES_PASSWORD: appalti
+      POSTGRES_DB: appalti
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: appalti-api
+    restart: unless-stopped
+    env_file:
+      - apps/api/.env
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_data:
+
