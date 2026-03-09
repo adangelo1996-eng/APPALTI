@@ -5,14 +5,15 @@ import { handleApiError } from "@lib/api-helpers";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     getTokenUser(request);
     const organizationId = getOrganizationId(request);
+    const { id } = await params;
 
     const sections = await prisma.generatedSection.findMany({
-      where: { tenderCriterionId: params.id, organizationId },
+      where: { tenderCriterionId: id, organizationId },
       orderBy: { version: "desc" },
     });
 

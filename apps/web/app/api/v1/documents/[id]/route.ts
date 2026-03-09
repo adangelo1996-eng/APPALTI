@@ -5,14 +5,15 @@ import { handleApiError, jsonError } from "@lib/api-helpers";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     getTokenUser(request);
     const organizationId = getOrganizationId(request);
+    const { id } = await params;
 
     const doc = await prisma.document.findFirst({
-      where: { id: params.id, organizationId },
+      where: { id, organizationId },
     });
 
     if (!doc) {

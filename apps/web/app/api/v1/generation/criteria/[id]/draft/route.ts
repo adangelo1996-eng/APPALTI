@@ -5,14 +5,15 @@ import { handleApiError, jsonError } from "@lib/api-helpers";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const tokenUser = getTokenUser(request);
     const organizationId = getOrganizationId(request);
+    const { id } = await params;
 
     const criterion = await prisma.tenderCriterion.findFirst({
-      where: { id: params.id, organizationId },
+      where: { id, organizationId },
     });
 
     if (!criterion) {
@@ -20,7 +21,7 @@ export async function POST(
     }
 
     const existingSections = await prisma.generatedSection.findMany({
-      where: { tenderCriterionId: params.id, organizationId },
+      where: { tenderCriterionId: id, organizationId },
       orderBy: { version: "desc" },
       take: 1,
     });
@@ -32,7 +33,7 @@ export async function POST(
     const section = await prisma.generatedSection.create({
       data: {
         tenderId: criterion.tenderId,
-        tenderCriterionId: params.id,
+        tenderCriterionId: id,
         organizationId,
         authorId: tokenUser.id,
         version: nextVersion,

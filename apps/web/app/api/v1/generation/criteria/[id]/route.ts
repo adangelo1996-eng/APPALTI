@@ -5,14 +5,15 @@ import { handleApiError, jsonError } from "@lib/api-helpers";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     getTokenUser(request);
     const organizationId = getOrganizationId(request);
+    const { id } = await params;
 
     const criterion = await prisma.tenderCriterion.findFirst({
-      where: { id: params.id, organizationId },
+      where: { id, organizationId },
     });
 
     if (!criterion) {
@@ -20,7 +21,7 @@ export async function GET(
     }
 
     const latestSection = await prisma.generatedSection.findFirst({
-      where: { tenderCriterionId: params.id, organizationId },
+      where: { tenderCriterionId: id, organizationId },
       orderBy: { version: "desc" },
       include: {
         sources: {

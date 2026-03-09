@@ -11,11 +11,12 @@ const updateSchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     getTokenUser(request);
     const organizationId = getOrganizationId(request);
+    const { id } = await params;
 
     const body = await request.json();
     const parsed = updateSchema.safeParse(body);
@@ -25,7 +26,7 @@ export async function PUT(
     }
 
     const existing = await prisma.generatedSection.findFirst({
-      where: { id: params.id, organizationId },
+      where: { id, organizationId },
     });
 
     if (!existing) {
@@ -33,7 +34,7 @@ export async function PUT(
     }
 
     const section = await prisma.generatedSection.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         generatedText: parsed.data.text,
         status: parsed.data.status ?? existing.status,
