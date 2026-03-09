@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse");
+const pdfParse = require("pdf-parse/lib/pdf-parse.js");
 
 export async function extractTextFromPdf(
   buffer: Buffer,
 ): Promise<{ text: string; pages: number }> {
-  const result = await pdfParse(buffer);
+  const result = await pdfParse(buffer, {});
   return { text: result.text as string, pages: result.numpages as number };
 }
 
